@@ -1,12 +1,11 @@
+import { ConnectButton } from "web3uikit";
 import React from "react";
-import { useMoralis } from "react-moralis";
 
 const Header = () => {
-  const { enableWeb3 } = useMoralis();
-
   return (
     <div>
-      <button>Connect</button>
+      <h1>Lotto Time!</h1>
+      <ConnectButton moralisAuth={false} />
     </div>
   );
 };

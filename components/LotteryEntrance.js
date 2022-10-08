@@ -3,6 +3,7 @@ import { useWeb3Contract, useMoralis } from "react-moralis";
 import { abi, contractAddress } from "../constants";
 import { ethers } from "ethers";
 import { useNotification } from "web3uikit";
+import { Bell } from "@web3uikit/icons";
 
 const LotteryEntrance = () => {
   const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis();
@@ -11,6 +12,9 @@ const LotteryEntrance = () => {
     chainId in contractAddress ? contractAddress[chainId][0] : null;
 
   const [entranceFee, setEntrancefee] = useState("0");
+  const [numPlayers, setNumPlayers] = useState("0");
+  const [recentWinner, setRecentWinner] = useState("0");
+
   const dispath = useNotification();
 
   const { runContractFunction: enterRaffle } = useWeb3Contract({
@@ -28,13 +32,33 @@ const LotteryEntrance = () => {
     params: {},
   });
 
+  const { runContractFunction: getNumberOfPlayers } = useWeb3Contract({
+    abi: abi,
+    contractAddress: raffleAddress,
+    functionName: "getNumberOfPlayers",
+    params: {},
+  });
+
+  const { runContractFunction: getRecentWinner } = useWeb3Contract({
+    abi: abi,
+    contractAddress: raffleAddress,
+    functionName: "getRecentWinner",
+    params: {},
+  });
+
+  async function updateUi() {
+    const entranceFeeFromCall = (await getEntranceFee()).toString();
+    const numPlayersFromCall = (await getNumberOfPlayers()).toString();
+    const recentWinnerFromCall = await getRecentWinner();
+
+    setEntrancefee(entranceFeeFromCall);
+    setNumPlayers(numPlayersFromCall);
+    setRecentWinner(recentWinnerFromCall);
+    console.log(entranceFee);
+  }
+
   useEffect(() => {
     if (isWeb3Enabled) {
-      async function updateUi() {
-        const entranceFeeFromCall = (await getEntranceFee()).toString();
-        setEntrancefee(entranceFeeFromCall);
-        console.log(entranceFee);
-      }
       updateUi();
     }
   }, [isWeb3Enabled]);
@@ -42,9 +66,18 @@ const LotteryEntrance = () => {
   const handleSuccess = async function (tx) {
     await tx.wait(1);
     handleNewNotification(tx);
+    updateUi();
   };
 
-  const handleNewNotification = function () {};
+  const handleNewNotification = function () {
+    dispath({
+      type: "info",
+      message: "Transaction Complete!",
+      title: "Tx Notification",
+      position: "topR",
+      icon: <Bell />,
+    });
+  };
 
   return (
     <div>
@@ -62,6 +95,8 @@ const LotteryEntrance = () => {
             Enter Raffle
           </button>
           Entrance fee: {ethers.utils.formatUnits(entranceFee, "ether")} ETH
+          Number of Players: {numPlayers}
+          Recent Winner: {recentWinner}
         </div>
       ) : (
         <div>

@@ -4,9 +4,6 @@ import { abi, contractAddress } from "../constants";
 import { ethers } from "ethers";
 import { useNotification } from "web3uikit";
 import { Bell } from "@web3uikit/icons";
-import { useQuery } from "react-query";
-
-const { isLoading, isFetching } = useQuery;
 
 const LotteryEntrance = () => {
   const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis();
@@ -20,7 +17,11 @@ const LotteryEntrance = () => {
 
   const dispath = useNotification();
 
-  const { runContractFunction: enterRaffle } = useWeb3Contract({
+  const {
+    runContractFunction: enterRaffle,
+    isLoading,
+    isFetching,
+  } = useWeb3Contract({
     abi: abi,
     contractAddress: raffleAddress,
     functionName: "enterRaffle",
@@ -102,9 +103,11 @@ const LotteryEntrance = () => {
               "Enter Raffle"
             )}
           </button>
-          Entrance fee: {ethers.utils.formatUnits(entranceFee, "ether")} ETH
-          Number of Players: {numPlayers}
-          Recent Winner: {recentWinner}
+          <div>
+            Entrance fee: {ethers.utils.formatUnits(entranceFee, "ether")} ETH
+          </div>
+          <div>Number of Players: {numPlayers}</div>
+          <div> Recent Winner: {recentWinner}</div>
         </div>
       ) : (
         <div>

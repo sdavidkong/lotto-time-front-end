@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWeb3Contract, useMoralis } from "react-moralis";
 import { abi, contractAddress } from "../constants";
 import { ethers } from "ethers";
 import { useNotification } from "web3uikit";
 import { Bell } from "@web3uikit/icons";
+import { useQuery } from "react-query";
+
+const { isLoading, isFetching } = useQuery;
 
 const LotteryEntrance = () => {
   const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis();
@@ -91,8 +94,13 @@ const LotteryEntrance = () => {
                 onError: (error) => console.log(error),
               });
             }}
+            disabled={isLoading || isFetching}
           >
-            Enter Raffle
+            {isLoading || isFetching ? (
+              <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            ) : (
+              "Enter Raffle"
+            )}
           </button>
           Entrance fee: {ethers.utils.formatUnits(entranceFee, "ether")} ETH
           Number of Players: {numPlayers}
